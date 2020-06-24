@@ -21,8 +21,13 @@ class Patient {
 void
 Patient::init(double poids, double taille)
 {
-  masse = poids > 0.0 ? poids : 0.0;
-  hauteur = taille > 0.0 ? taille : 0.0;
+  if (poids > 0.0 && taille > 0.0) {
+    masse = poids;
+    hauteur = taille;
+  } else {
+    masse = 0.0;
+    hauteur = 0.0;
+  }
 }
 
 void
