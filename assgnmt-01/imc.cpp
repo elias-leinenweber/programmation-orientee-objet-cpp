@@ -5,6 +5,49 @@ using namespace std;
  * Compléter le code à partir d'ici
  *****************************************************/
 
+class Patient {
+  public:
+    void init(double, double);
+    void afficher();
+    double poids();
+    double taille();
+    double imc();
+
+  private:
+    double masse;
+    double hauteur;
+};
+
+void
+Patient::init(double poids, double taille)
+{
+  masse = poids > 0.0 ? poids : 0.0;
+  hauteur = taille > 0.0 ? taille : 0.0;
+}
+
+void
+Patient::afficher()
+{
+  cout << "Patient : " << masse << " kg pour " << hauteur << " m" << endl;
+}
+
+double
+Patient::poids()
+{
+  return masse;
+}
+
+double
+Patient::taille()
+{
+  return hauteur;
+}
+
+double
+Patient::imc()
+{
+  return hauteur != 0.0 ? masse / (hauteur * hauteur) : 0.0;
+}
 
 /*******************************************
  * Ne rien modifier après cette ligne.
