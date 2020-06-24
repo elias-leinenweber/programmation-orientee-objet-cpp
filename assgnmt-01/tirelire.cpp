@@ -5,6 +5,85 @@ using namespace std;
  * Complétez le programme à partir d'ici.
  *******************************************/
 
+class Tirelire {
+  public:
+    double getMontant();
+    void afficher();
+    void secouer();
+    void remplir(double);
+    void vider();
+    void puiser(double);
+    bool montant_suffisant(double, double&);
+    double calculerSolde(double);
+
+  private:
+    double montant;
+};
+
+double
+Tirelire::getMontant()
+{
+  return montant;
+}
+
+void
+Tirelire::afficher()
+{
+  if (montant == 0)
+    cout << "Vous etes sans le sou.";
+  else
+    cout << "Vous avez : " << montant << " euros dans votre tirelire.";
+  cout << endl;
+}
+
+void
+Tirelire::secouer()
+{
+  if (montant > 0)
+    cout << "Bing bing" << endl;
+}
+
+void
+Tirelire::remplir(double montant)
+{
+  if (montant > 0)
+    this->montant += montant;
+}
+
+void
+Tirelire::vider()
+{
+  montant = 0;
+}
+
+void
+Tirelire::puiser(double montant)
+{
+  if (montant > 0) {
+    if (montant <= this->montant)
+      this->montant -= montant;
+    else
+      vider();
+  }
+}
+
+bool
+Tirelire::montant_suffisant(double budget, double& solde)
+{
+  bool suffisant;
+
+  solde = calculerSolde(budget);
+  suffisant = solde >= 0;
+  if (!suffisant)
+    solde = -solde;
+  return suffisant;
+}
+
+double
+Tirelire::calculerSolde(double budget)
+{
+  return budget > 0 ? montant - budget : montant;
+}
 
 /*******************************************
  * Ne rien modifier après cette ligne.
