@@ -58,15 +58,23 @@ private:
 };
 
 Construction::Construction(Brique brique)
+: contenu(1, vector<vector<Brique>>(1, vector<Brique>()))
 {
-  contenu[0][0][0] = brique;
+  contenu[0][0].push_back(brique);
 }
 
 ostream &
 Construction::afficher(ostream &sortie) const
 {
-  // TODO
-  return sortie << "";
+  for (int i = contenu.size() - 1; i >= 0; --i) {
+    sortie << "Couche " << i << " :" << endl;
+    for (const vector<Brique> &rangee : contenu[i]) {
+      for (const Brique &brique : rangee)
+        sortie << brique << " ";
+      sortie << endl;
+    }
+  }
+  return sortie;
 }
 
 ostream &
@@ -75,40 +83,52 @@ operator<<(ostream &sortie, const Construction &construction)
   return construction.afficher(sortie);
 }
 
-const Construction
-operator^(Construction c1, const Construction &c2)
-{
-  // TODO
-}
-
 Construction &
 Construction::operator^=(const Construction &autre)
 {
-  return *this = *this ^ autre;
+  for (const vector<vector<Brique>> &couche : autre.contenu)
+    this->contenu.push_back(couche);
+  return *this;
 }
 
 const Construction
-operator-(Construction c1, const Construction &c2)
+operator^(Construction a, const Construction &b)
 {
-  // TODO
+  return a ^= b;
 }
 
 Construction &
 Construction::operator-=(const Construction &autre)
 {
-  return *this = *this - autre;
+  if (autre.contenu.size() >= this->contenu.size())
+    for (unsigned int i = 0; i < this->contenu.size(); ++i)
+      for (const vector<Brique> &rangee : autre.contenu[i])
+        this->contenu[i].push_back(rangee);
+  return *this;
 }
 
 const Construction
-operator+(Construction c1, const Construction &c2)
+operator-(Construction a, const Construction &b)
 {
-  // TODO
+  return a -= b;
 }
 
 Construction &
 Construction::operator+=(const Construction &autre)
 {
-  return *this = *this + autre;
+  if (autre.contenu.size() >= this->contenu.size())
+    for (unsigned int i = 0; i < this->contenu.size(); ++i)
+      if (autre.contenu[i].size() >= this->contenu[i].size())
+        for (unsigned int j = 0; j < this->contenu[i].size(); ++j)
+          for (const Brique &brique : autre.contenu[i][j])
+            this->contenu[i][j].push_back(brique);
+  return *this;
+}
+
+const Construction
+operator+(Construction a, const Construction &b)
+{
+  return a += b;
 }
 
 const Construction
