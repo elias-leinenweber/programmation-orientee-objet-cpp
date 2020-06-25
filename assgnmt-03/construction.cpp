@@ -17,27 +17,129 @@ public:
   /*****************************************************
     Compléter le code à partir d'ici
   *******************************************************/
-
+  Brique(Forme, Couleur);
+  ostream &afficher(ostream &) const;
 };
 
-class Construction
+ostream &operator<<(ostream &, const Brique &);
+
+Brique::Brique(Forme forme, Couleur couleur)
+: forme(forme), couleur(couleur)
+{}
+
+ostream &
+Brique::afficher(ostream &sortie) const
 {
+  if (couleur != "")
+    sortie << "(" << forme << ", " << couleur << ")";
+  else
+    sortie << forme;
+  return sortie;
+}
+
+ostream &
+operator<<(ostream &sortie, const Brique &brique)
+{
+  return brique.afficher(sortie);
+}
+
+class Construction {
   friend class Grader;
 
+public:
+  Construction(Brique);
+  ostream &afficher(ostream &) const;
+  Construction &operator^=(const Construction &);
+  Construction &operator-=(const Construction &);
+  Construction &operator+=(const Construction &);
+
+private:
+  vector<vector<vector<Brique>>> contenu;
 };
 
-const Construction operator*(unsigned int n, Construction const& a)
+Construction::Construction(Brique brique)
 {
+  contenu[0][0][0] = brique;
 }
 
-const Construction operator/(unsigned int n, Construction const& a)
+ostream &
+Construction::afficher(ostream &sortie) const
 {
+  // TODO
+  return sortie << "";
 }
 
-const Construction operator%(unsigned int n, Construction const& a)
+ostream &
+operator<<(ostream &sortie, const Construction &construction)
 {
+  return construction.afficher(sortie);
 }
 
+const Construction
+operator^(Construction c1, const Construction &c2)
+{
+  // TODO
+}
+
+Construction &
+Construction::operator^=(const Construction &autre)
+{
+  return *this = *this ^ autre;
+}
+
+const Construction
+operator-(Construction c1, const Construction &c2)
+{
+  // TODO
+}
+
+Construction &
+Construction::operator-=(const Construction &autre)
+{
+  return *this = *this - autre;
+}
+
+const Construction
+operator+(Construction c1, const Construction &c2)
+{
+  // TODO
+}
+
+Construction &
+Construction::operator+=(const Construction &autre)
+{
+  return *this = *this + autre;
+}
+
+const Construction
+operator*(unsigned int n, const Construction &a)
+{
+  Construction res = a;
+
+  for (unsigned int i = 1; i < n; ++i)
+    res += a;
+  return res;
+}
+
+const Construction
+operator/(unsigned int n, const Construction &a)
+{
+  Construction res = a;
+
+  for (unsigned int i = 1; i < n; ++i)
+    res ^= a;
+  return res;
+}
+
+const Construction
+operator%(unsigned int n, const Construction &a)
+{
+  Construction res = a;
+
+  for (unsigned int i = 1; i < n; ++i)
+    res -= a;
+  return res;
+}
 /*******************************************
  * Ne rien modifier après cette ligne.
  *******************************************/
