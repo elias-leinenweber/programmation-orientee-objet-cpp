@@ -76,8 +76,8 @@ public:
 
 ostream &operator<<(ostream &, const Rare &);
 
-Rare::Rare(string nom, unsigned int annee, string pays, double valeur_faciale,
-    unsigned int exemplaires)
+Rare::Rare(string nom, unsigned int annee, string pays = "Suisse",
+    double valeur_faciale = 1.0, unsigned int exemplaires)
 : Timbre(nom, annee, pays, valeur_faciale), exemplaires(exemplaires)
 {}
 
@@ -109,8 +109,8 @@ public:
 
 ostream &operator<<(ostream &, const Commemoratif &);
 
-Commemoratif::Commemoratif(string nom, unsigned int annee, string pays,
-    double valeur_faciale)
+Commemoratif::Commemoratif(string nom, unsigned int annee,
+    string pays = "Suisse", double valeur_faciale = 1.0)
 : Timbre(nom, annee, pays, valeur_faciale)
 {}
 

@@ -50,7 +50,8 @@ Creature::points_attaque() const
 void
 Creature::deplacer(int distance)
 {
-  position_ += distance;
+  if (vivant())
+    position_ += distance;
 }
 
 void
