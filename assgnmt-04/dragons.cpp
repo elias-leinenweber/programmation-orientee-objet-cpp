@@ -101,7 +101,8 @@ Dragon::Dragon(string nom, int niveau, int points_de_vie, int force, int portee_
 void
 Dragon::voler(int pos)
 {
-  position_ = pos;
+  if (vivant())
+    position_ = pos;
 }
 
 void

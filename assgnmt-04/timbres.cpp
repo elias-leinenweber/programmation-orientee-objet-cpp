@@ -77,7 +77,7 @@ public:
 ostream &operator<<(ostream &, const Rare &);
 
 Rare::Rare(string nom, unsigned int annee, string pays = "Suisse",
-    double valeur_faciale = 1.0, unsigned int exemplaires)
+    double valeur_faciale = 1.0, unsigned int exemplaires = 100)
 : Timbre(nom, annee, pays, valeur_faciale), exemplaires(exemplaires)
 {}
 
