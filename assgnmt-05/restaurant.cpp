@@ -7,7 +7,204 @@ using namespace std;
 /*****************************************************
   * Compléter le code à partir d'ici
  *****************************************************/
+class Produit {
+public:
+  Produit(string, string);
+  string getNom() const;
+  string getUnite() const;
+  virtual string toString() const;
+  virtual const Produit *adapter(double) const;
+  double quantiteTotale(const string &) const;
 
+private:
+  string nom;
+  string unite;
+};
+
+class Ingredient {
+public:
+  Ingredient(const Produit &, double);
+  const Produit &getProduit() const;
+  double getQuantite() const;
+  void descriptionAdaptee() const;
+  string toString() const;
+  double quantiteTotale(const string &) const;
+
+private:
+  const Produit &produit;
+  double quantite;
+};
+
+class Recette {
+public:
+  Recette(string, double);
+  void ajouter(const Produit &, double);
+  Recette adapter(double) const;
+  string toString() const;
+  double quantiteTotale(const string &) const;
+
+private:
+  vector<Ingredient *> ingredients;
+  string nom;
+  double nbFois_;
+};
+
+class ProduitCuisine : public Produit {
+public:
+  ProduitCuisine(string);
+  void ajouterARecette(const Produit &, double);
+  const ProduitCuisine *adapter(double) const override;
+  string toString() const override;
+  double quantiteTotale(const string &) const;
+
+private:
+  Recette recette;
+};
+
+Produit::Produit(string nom, string unite = "")
+: nom(nom), unite(unite)
+{}
+
+string
+Produit::getNom() const
+{
+  return nom;
+}
+
+string
+Produit::getUnite() const
+{
+  return unite;
+}
+
+string
+Produit::toString() const
+{
+  return nom;
+}
+
+const Produit *
+Produit::adapter(double n) const
+{
+  return this;
+}
+
+double
+Produit::quantiteTotale(const string &nomProduit) const
+{
+  return nom == nomProduit ? 1. : 0.;
+}
+
+Ingredient::Ingredient(const Produit &produit, double quantite)
+: produit(produit), quantite(quantite)
+{}
+
+const Produit &
+Ingredient::getProduit() const
+{
+  return produit;
+}
+
+double
+Ingredient::getQuantite() const
+{
+  return quantite;
+}
+
+void
+Ingredient::descriptionAdaptee() const
+{
+  cout << quantite << " " << produit.getUnite() << " de " << produit.toString();
+}
+
+string
+Ingredient::toString() const
+{
+  ostringstream ss;
+
+  ss << quantite << " " << produit.getUnite() << " de " << produit.toString();
+  return ss.str();
+}
+
+double
+Ingredient::quantiteTotale(const string &nomProduit) const
+{
+  return quantite * produit.quantiteTotale(nomProduit);
+}
+
+Recette::Recette(string nom, double nbFois = 1.)
+: nom(nom), nbFois_(nbFois)
+{}
+
+void
+Recette::ajouter(const Produit &p, double quantite)
+{
+  ingredients.push_back(new Ingredient(p, nbFois_ * quantite));
+}
+
+Recette
+Recette::adapter(double n) const
+{
+  Recette nouvelle(nom, nbFois_ * n);
+
+  for (const Ingredient *ingredient : ingredients)
+    nouvelle.ajouter(ingredient->getProduit(), ingredient->getQuantite() * n);
+  return nouvelle;
+}
+
+string
+Recette::toString() const
+{
+  ostringstream ss;
+  unsigned int i = 1;
+
+  ss << "Recette \"" << nom << "\" x " << nbFois_ << ":";
+  for (const Ingredient *ingredient : ingredients)
+    ss << endl << i++ << ". " << ingredient->toString();
+  return ss.str();
+}
+
+double
+Recette::quantiteTotale(const string &nomProduit) const
+{
+  double somme = 0.;
+
+  for (const Ingredient *ingredient : ingredients)
+    somme += ingredient->quantiteTotale(nomProduit);
+  return somme;
+}
+
+ProduitCuisine::ProduitCuisine(string nom)
+: Produit(nom, "portion(s)"), recette(nom)
+{}
+
+void
+ProduitCuisine::ajouterARecette(const Produit &produit, double quantite)
+{
+  recette.ajouter(produit, quantite);
+}
+
+const ProduitCuisine *
+ProduitCuisine::adapter(double n) const
+{
+  ProduitCuisine *nouveau;
+
+  nouveau = new ProduitCuisine(*this);
+  nouveau->recette.adapter(n);
+  return nouveau;
+}
+
+string
+ProduitCuisine::toString() const
+{
+  return Produit::toString() + "\n" + recette.toString();
+}
+
+double
+ProduitCuisine::quantiteTotale(const string &nomProduit) const
+{
+  return getNom() == nomProduit ? 1. : recette.quantiteTotale(nomProduit);
+}
 /*******************************************
  * Ne rien modifier après cette ligne.
  *******************************************/
