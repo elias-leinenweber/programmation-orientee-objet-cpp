@@ -141,7 +141,6 @@ Recette::Recette(string nom, double nbFois = 1.)
 void
 Recette::ajouter(const Produit &p, double quantite)
 {
-  //ingredients.push_back(new Ingredient(p, nbFois_ * quantite));
   ingredients.push_back(Ingredient(p, nbFois_ * quantite));
 }
 
@@ -151,7 +150,7 @@ Recette::adapter(double n) const
   Recette nouvelle(nom, nbFois_ * n);
 
   for (const Ingredient ingredient : ingredients)
-    nouvelle.ajouter(ingredient.getProduit(), ingredient.getQuantite());
+    nouvelle.ajouter(ingredient.getProduit(), ingredient.getQuantite() / nbFois_);
   return nouvelle;
 }
 
