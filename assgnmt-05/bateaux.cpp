@@ -32,15 +32,271 @@ class Navire
   /*****************************************************
    * Compléter le code à partir d'ici
    *****************************************************/
+public:
+  Navire(int, int, Pavillon);
+  Coordonnees position() const;
+  void avancer(int, int);
+  void renflouer();
+  ostream &afficher(ostream &) const;
+  virtual void attaque(Navire &) const = 0;
+  virtual void replique(Navire &) const = 0;
+  virtual void est_touche() = 0;
+  void rencontrer(Navire &);
 
+protected:
+  virtual string genre() const = 0;
+  Coordonnees position_;
+  Pavillon pavillon_;
+  Etat etat_;
+
+private:
+  static int constexpr rayon_rencontre = 10;
 };
 
-void Coordonnees::operator+=(Coordonnees const& autre)
-{
-  // à définir ici
+class Pirate : public virtual Navire {
+public:
+  Pirate(int, int, Pavillon);
+  void attaque(Navire &) const override;
+  void replique(Navire &) const override;
+  void est_touche() override;
 
+protected:
+  string genre() const override;
+};
+
+class Marchand : public virtual Navire {
+public:
+  Marchand(int, int, Pavillon);
+  void attaque(Navire &) const override;
+  void replique(Navire &) const override;
+  void est_touche() override;
+
+protected:
+  string genre() const override;
+};
+
+class Felon : public Marchand, public Pirate {
+public:
+  Felon(int, int, Pavillon);
+  void attaque(Navire &) const override;
+  void replique(Navire &) const override;
+  void est_touche() override;
+
+protected:
+  string genre() const override;
+};
+
+double distance(Coordonnees, Coordonnees);
+double distance(const Navire &, const Navire &);
+ostream &operator<<(ostream &, const Coordonnees &);
+ostream &operator<<(ostream &, const Pavillon &);
+ostream &operator<<(ostream &, const Etat &);
+ostream &operator<<(ostream &, const Navire &);
+
+void
+Coordonnees::operator+=(const Coordonnees &autre)
+{
+  x_ += autre.x_;
+  y_ += autre.y_;
 }
 
+double
+distance(Coordonnees c1, Coordonnees c2)
+{
+  return sqrt(sq(c1.x() - c2.x()) + sq(c1.y() - c2.y()));
+}
+
+double
+distance(const Navire &n1, const Navire &n2)
+{
+  return distance(n1.position(), n2.position());
+}
+
+ostream &
+operator<<(ostream &sortie, const Coordonnees &c)
+{
+  return sortie << "(" << c.x() << ", " << c.y() << ")";
+}
+
+ostream &
+operator<<(ostream &sortie, const Pavillon &p)
+{
+  switch (p) {
+  case JollyRogers:
+    sortie << "pirate";
+    break;
+  case CompagnieDuSenegal:
+    sortie << "français";
+    break;
+  case CompagnieDOstende:
+    sortie << "autrichien";
+    break;
+  default:
+    sortie << "pavillon inconnu";
+  }
+  return sortie;
+}
+
+ostream &
+operator<<(ostream &sortie, const Etat &e)
+{
+  switch(e) {
+  case Intact:
+    sortie << "intact";
+    break;
+  case Endommage:
+    sortie << "ayant subi des dommages";
+    break;
+  case Coule:
+    sortie << "coulé";
+    break;
+  default:
+    sortie << "état inconnu";
+  }
+  return sortie;
+}
+
+ostream &
+operator<<(ostream &sortie, const Navire &n)
+{
+  return n.afficher(sortie);
+}
+
+Navire::Navire(int x, int y, Pavillon pavillon)
+: position_(x, y), pavillon_(pavillon), etat_(Intact)
+{}
+
+Coordonnees
+Navire::position() const
+{
+  return position_;
+}
+
+void
+Navire::avancer(int de_x, int de_y)
+{
+  if (etat_ != Coule)
+    position_ += Coordonnees(de_x, de_y);
+}
+
+void
+Navire::renflouer()
+{
+  etat_ = Intact;
+}
+
+ostream &
+Navire::afficher(ostream &sortie) const
+{
+  return sortie << genre() << " en " << position_ << " battant pavillon " << pavillon_ << ", " << etat_;
+}
+
+void
+Navire::rencontrer(Navire &autre)
+{
+  if (etat_ != Coule && autre.etat_ != Coule && pavillon_ != autre.pavillon_ && distance(*this, autre) <= rayon_rencontre) {
+    attaque(autre);
+    autre.replique(*this);
+  }
+}
+
+Pirate::Pirate(int x, int y, Pavillon pavillon)
+: Navire(x, y, pavillon)
+{}
+
+void
+Pirate::attaque(Navire &autre) const
+{
+  cout << "A l'abordage !" << endl;
+  autre.est_touche();
+}
+
+void
+Pirate::replique(Navire &autre) const
+{
+  if (etat_ != Coule) {
+    cout << "Non mais, ils nous attaquent ! On riposte !!" << endl;
+    attaque(autre);
+  }
+}
+
+void
+Pirate::est_touche()
+{
+  switch (etat_) {
+  case Intact:
+    etat_ = Endommage;
+    break;
+  case Endommage:
+    etat_ = Coule;
+  }
+}
+
+string
+Pirate::genre() const
+{
+  return "bateau pirate";
+}
+
+Marchand::Marchand(int x, int y, Pavillon pavillon)
+: Navire(x, y, pavillon)
+{}
+
+void
+Marchand::attaque(Navire &autre) const
+{
+  cout << "On vous aura ! (insultes)" << endl;
+}
+
+void
+Marchand::replique(Navire &autre) const
+{
+  if (etat_ == Coule)
+    cout << "SOS je coule !";
+  else
+    cout << "Même pas peur !";
+  cout << endl;
+}
+
+void
+Marchand::est_touche()
+{
+  etat_ = Coule;
+}
+
+string
+Marchand::genre() const
+{
+  return "navire marchand";
+}
+
+Felon::Felon(int x, int y, Pavillon pavillon)
+: Navire(x, y, pavillon), Marchand(x, y, pavillon), Pirate(x, y, pavillon)
+{}
+
+void
+Felon::attaque(Navire &autre) const
+{
+  Pirate::attaque(autre);
+}
+
+void
+Felon::replique(Navire &autre) const
+{
+  Marchand::replique(autre);
+}
+
+void
+Felon::est_touche()
+{
+  Pirate::est_touche();
+}
+
+string
+Felon::genre() const
+{
+  return "navire félon";
+}
 /*******************************************
  * Ne rien modifier après cette ligne.
  *******************************************/
