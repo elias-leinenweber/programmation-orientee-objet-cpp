@@ -26,7 +26,7 @@ public:
   Ingredient(const Produit &, double);
   const Produit &getProduit() const;
   double getQuantite() const;
-  void descriptionAdaptee() const;
+  string descriptionAdaptee() const;
   string toString() const;
   double quantiteTotale(const string &) const;
 
@@ -111,19 +111,19 @@ Ingredient::getQuantite() const
   return quantite;
 }
 
-void
+string
 Ingredient::descriptionAdaptee() const
 {
-  cout << quantite << " " << produit.getUnite() << " de " << produit.toString();
+  ostringstream ss;
+
+  ss << fixed << quantite << " " << produit.getUnite() << " de " << produit.toString();
+  return ss.str();
 }
 
 string
 Ingredient::toString() const
 {
-  ostringstream ss;
-
-  ss << quantite << " " << produit.getUnite() << " de " << produit.toString();
-  return ss.str();
+  return descriptionAdaptee();
 }
 
 double
@@ -158,9 +158,9 @@ Recette::toString() const
   ostringstream ss;
   unsigned int i = 1;
 
-  ss << "Recette \"" << nom << "\" x " << nbFois_ << ":";
+  ss << "  Recette \"" << nom << "\" x " << nbFois_ << ":";
   for (const Ingredient *ingredient : ingredients)
-    ss << endl << i++ << ". " << ingredient->toString();
+    ss << endl << "  " << i++ << ". " << ingredient->toString();
   return ss.str();
 }
 
