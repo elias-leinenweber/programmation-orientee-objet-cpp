@@ -14,7 +14,7 @@ public:
   string getUnite() const;
   virtual string toString() const;
   virtual const Produit *adapter(double) const;
-  double quantiteTotale(const string &) const;
+  virtual double quantiteTotale(const string &) const;
 
 private:
   string nom;
@@ -44,7 +44,7 @@ public:
   double quantiteTotale(const string &) const;
 
 private:
-  vector<Ingredient *> ingredients;
+  vector<Ingredient> ingredients;
   string nom;
   double nbFois_;
 };
@@ -55,7 +55,7 @@ public:
   void ajouterARecette(const Produit &, double);
   const ProduitCuisine *adapter(double) const override;
   string toString() const override;
-  double quantiteTotale(const string &) const;
+  double quantiteTotale(const string &) const override;
 
 private:
   Recette recette;
@@ -115,8 +115,10 @@ string
 Ingredient::descriptionAdaptee() const
 {
   ostringstream ss;
+  const Produit *adapte;
 
-  ss << fixed << quantite << " " << produit.getUnite() << " de " << produit.toString();
+  adapte = produit.adapter(quantite);
+  ss << fixed << quantite << " " << produit.getUnite() << " de " << adapte->toString();
   return ss.str();
 }
 
@@ -139,7 +141,8 @@ Recette::Recette(string nom, double nbFois = 1.)
 void
 Recette::ajouter(const Produit &p, double quantite)
 {
-  ingredients.push_back(new Ingredient(p, nbFois_ * quantite));
+  //ingredients.push_back(new Ingredient(p, nbFois_ * quantite));
+  ingredients.push_back(Ingredient(p, nbFois_ * quantite));
 }
 
 Recette
@@ -147,8 +150,8 @@ Recette::adapter(double n) const
 {
   Recette nouvelle(nom, nbFois_ * n);
 
-  for (const Ingredient *ingredient : ingredients)
-    nouvelle.ajouter(ingredient->getProduit(), ingredient->getQuantite() * n);
+  for (const Ingredient ingredient : ingredients)
+    nouvelle.ajouter(ingredient.getProduit(), ingredient.getQuantite());
   return nouvelle;
 }
 
@@ -159,8 +162,8 @@ Recette::toString() const
   unsigned int i = 1;
 
   ss << "  Recette \"" << nom << "\" x " << nbFois_ << ":";
-  for (const Ingredient *ingredient : ingredients)
-    ss << endl << "  " << i++ << ". " << ingredient->toString();
+  for (const Ingredient ingredient : ingredients)
+    ss << endl << "  " << i++ << ". " << ingredient.toString();
   return ss.str();
 }
 
@@ -169,8 +172,8 @@ Recette::quantiteTotale(const string &nomProduit) const
 {
   double somme = 0.;
 
-  for (const Ingredient *ingredient : ingredients)
-    somme += ingredient->quantiteTotale(nomProduit);
+  for (const Ingredient ingredient : ingredients)
+    somme += ingredient.quantiteTotale(nomProduit);
   return somme;
 }
 
@@ -190,7 +193,7 @@ ProduitCuisine::adapter(double n) const
   ProduitCuisine *nouveau;
 
   nouveau = new ProduitCuisine(*this);
-  nouveau->recette.adapter(n);
+  nouveau->recette = recette.adapter(n);
   return nouveau;
 }
 
